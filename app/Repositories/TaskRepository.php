@@ -33,6 +33,8 @@ class TaskRepository implements TaskRepositoryInterface
     ): LengthAwarePaginator {
         $query = $this->task->newQuery();
 
+        $query->with('user');
+
         // Filter by user
         if ($userId !== null) {
             $query->where('user_id', $userId);
@@ -85,7 +87,7 @@ class TaskRepository implements TaskRepositoryInterface
      */
     public function getTaskById(int $id): Task
     {
-        $task = $this->task->find($id);
+        $task = $this->task->with('user')->find($id);
 
         if (! $task) {
             throw new TaskNotFoundException($id);
