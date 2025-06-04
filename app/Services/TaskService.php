@@ -88,6 +88,18 @@ class TaskService implements TaskServiceInterface
             throw new TaskNotFoundException($id);
         }
 
+        if (isset($taskData['status'])) {
+            $task = $this->taskRepository->getTaskById($id);
+            
+            if ($taskData['status'] === 'completed' && $task->status->value !== 'completed') {
+                $taskData['completed_at'] = Carbon::now();
+            }
+            
+            if ($taskData['status'] !== 'completed' && $task->status->value === 'completed') {
+                $taskData['completed_at'] = null;
+            }
+        }
+
         return $this->taskRepository->updateTask($id, $taskData);
     }
 
