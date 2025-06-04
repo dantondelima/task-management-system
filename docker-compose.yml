@@ -52,14 +52,15 @@ services:
       - CHOKIDAR_USEPOLLING=true
 
   db:
-    image: mysql:8.0
+    image: postgres:15
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: task_manager
+      POSTGRES_DB: task_manager
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - db:/var/lib/mysql
+      - pgdata:/var/lib/postgresql/data
     networks:
       - task_manager_shared
 
@@ -68,6 +69,6 @@ networks:
     name: task_manager_shared  
 
 volumes:
-  db:
+  pgdata:
     driver: local
   node_modules:

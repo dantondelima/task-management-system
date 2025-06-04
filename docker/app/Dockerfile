@@ -4,7 +4,9 @@ FROM php:8.3-fpm-alpine as builder
 # Install system dependencies
 RUN apk add --no-cache \
     curl \
-    && docker-php-ext-install pdo pdo_mysql
+    postgresql-dev \
+    libpq \
+    && docker-php-ext-install pdo pdo_pgsql
 
 WORKDIR /app
 
@@ -17,7 +19,8 @@ WORKDIR /app
 
 # Install curl
 RUN apk add --no-cache \
-    curl
+    curl \
+    libpq
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY --from=builder /app /app
