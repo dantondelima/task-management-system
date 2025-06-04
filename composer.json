@@ -18,7 +18,8 @@
         "laravel/sail": "^1.18",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^7.0",
-        "phpunit/phpunit": "^10.1",
+        "pestphp/pest": "^2.36",
+        "phpunit/phpunit": "^10.5.16",
         "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {
@@ -46,7 +47,8 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
-        ]
+        ],
+        "test": "pest"
     },
     "extra": {
         "laravel": {
