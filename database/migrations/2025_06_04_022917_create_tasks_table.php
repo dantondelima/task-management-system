@@ -26,7 +26,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
 
-            $table->index(['status', 'priority', 'completed_at'], 'tasks_status_priority_completion_index');
+            $table->index(['status', 'priority'], 'tasks_status_priority_index');
             $table->index(['user_id', 'status'], 'tasks_user_status_index');
             $table->index(['user_id', 'created_at'], 'tasks_user_recent_index');
         });
