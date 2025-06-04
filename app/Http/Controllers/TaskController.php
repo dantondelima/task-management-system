@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Exceptions\TaskNotFoundException;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
-use App\Models\Task;
 use App\Models\User;
 use App\Services\TaskServiceInterface;
 use Exception;
@@ -34,20 +33,15 @@ class TaskController extends Controller
     public function index(Request $request): View|RedirectResponse
     {
         try {
-            // Get filters from request
             $filters = $request->only(['status', 'priority', 'completed', 'per_page']);
 
-            // Get sort parameters
             $sortBy = $request->input('sort_by');
             $sortDirection = $request->input('sort_direction', 'desc');
 
-            // Get current user ID
             $userId = auth()->id();
 
-            // Get tasks with filters, sorting, and user-specific view
             $tasks = $this->taskService->getAllTasks($filters, $sortBy, $sortDirection, $userId);
 
-            // Get available sort options for the view
             $sortOptions = [
                 'created_at' => 'Created Date',
                 'due_date' => 'Due Date',
@@ -127,7 +121,6 @@ class TaskController extends Controller
     public function show(int $id): View|RedirectResponse
     {
         try {
-            // Only show task if it belongs to the current user
             $task = $this->taskService->getTaskById($id, auth()->id());
 
             return view('tasks.show', compact('task'));
@@ -153,7 +146,6 @@ class TaskController extends Controller
     public function edit(int $id): View|RedirectResponse
     {
         try {
-            // Only edit task if it belongs to the current user
             $task = $this->taskService->getTaskById($id, auth()->id());
             $users = $this->taskService->getAllUsers();
 
@@ -182,12 +174,10 @@ class TaskController extends Controller
         try {
             $taskData = $request->validated();
 
-            // Handle completed checkbox if present
             if ($request->has('completed')) {
                 $taskData = $this->taskService->handleCompletedStatus($taskData, (bool) $request->completed);
             }
 
-            // Only update task if it belongs to the current user
             $task = $this->taskService->updateTask($id, $taskData, auth()->id());
 
             Log::info('Task updated successfully', [
@@ -221,7 +211,6 @@ class TaskController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         try {
-            // Only delete task if it belongs to the current user
             $this->taskService->deleteTask($id, auth()->id());
 
             Log::info('Task deleted successfully', [

@@ -33,7 +33,6 @@ class TaskService implements TaskServiceInterface
         string $sortDirection = 'desc',
         ?int $userId = null
     ): LengthAwarePaginator {
-        // Delegate to repository layer
         return $this->taskRepository->getPaginatedTasks(
             $filters,
             $sortBy,
@@ -61,7 +60,6 @@ class TaskService implements TaskServiceInterface
     {
         $task = $this->taskRepository->getTaskById($id);
 
-        // If userId is specified, check if task belongs to user
         if ($userId !== null && ! $this->taskBelongsToUser($id, $userId)) {
             throw new TaskNotFoundException($id);
         }
@@ -86,7 +84,6 @@ class TaskService implements TaskServiceInterface
      */
     public function updateTask(int $id, array $taskData, ?int $userId = null): Task
     {
-        // If userId is specified, check if task belongs to user
         if ($userId !== null && ! $this->taskBelongsToUser($id, $userId)) {
             throw new TaskNotFoundException($id);
         }
@@ -101,7 +98,6 @@ class TaskService implements TaskServiceInterface
     {
         $taskData['completed_at'] = $completed ? Carbon::now() : null;
 
-        // If marked as completed, update status as well
         if ($completed && (! isset($taskData['status']) || $taskData['status'] !== 'completed')) {
             $taskData['status'] = 'completed';
         }
@@ -118,7 +114,6 @@ class TaskService implements TaskServiceInterface
      */
     public function deleteTask(int $id, ?int $userId = null): bool
     {
-        // If userId is specified, check if task belongs to user
         if ($userId !== null && ! $this->taskBelongsToUser($id, $userId)) {
             throw new TaskNotFoundException($id);
         }

@@ -11,7 +11,12 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
 
-    public function createApplication()
+    protected function setUp(): void
+    {
+        parent::setUp();
+    }
+
+    final public function createApplication()
     {
         // Forces sqlite for testing
         putenv('APP_ENV=testing');
@@ -26,10 +31,5 @@ abstract class TestCase extends BaseTestCase
         $app['config']->set('database.connections.sqlite.database', ':memory:');
 
         return $app;
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
     }
 }

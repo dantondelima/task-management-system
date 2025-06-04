@@ -12,12 +12,12 @@ use Illuminate\Support\Facades\Validator;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function() {
+beforeEach(function () {
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
 });
 
-test('create task request validates correctly', function() {
+test('create task request validates correctly', function () {
     $request = new CreateTaskRequest();
 
     $validData = [
@@ -36,7 +36,7 @@ test('create task request validates correctly', function() {
     foreach ($requiredFields as $field) {
         $invalidData = $validData;
         unset($invalidData[$field]);
-        
+
         $validator = Validator::make($invalidData, $request->rules());
         expect($validator->fails())->toBeTrue();
         expect($validator->errors()->toArray())->toHaveKey($field);
@@ -44,27 +44,27 @@ test('create task request validates correctly', function() {
 
     $invalidData = $validData;
     $invalidData['status'] = 'invalid_status';
-    
+
     $validator = Validator::make($invalidData, $request->rules());
     expect($validator->fails())->toBeTrue();
     expect($validator->errors()->toArray())->toHaveKey('status');
 
     $invalidData = $validData;
     $invalidData['priority'] = 'invalid_priority';
-    
+
     $validator = Validator::make($invalidData, $request->rules());
     expect($validator->fails())->toBeTrue();
     expect($validator->errors()->toArray())->toHaveKey('priority');
 
     $invalidData = $validData;
     $invalidData['due_date'] = 'not-a-date';
-    
+
     $validator = Validator::make($invalidData, $request->rules());
     expect($validator->fails())->toBeTrue();
     expect($validator->errors()->toArray())->toHaveKey('due_date');
 });
 
-test('update task request validates correctly', function() {
+test('update task request validates correctly', function () {
     $request = new UpdateTaskRequest();
 
     $validData = [
@@ -80,33 +80,33 @@ test('update task request validates correctly', function() {
 
     $invalidData = $validData;
     unset($invalidData['title']);
-    
+
     $optionalFields = ['description', 'status', 'priority', 'due_date'];
     foreach ($optionalFields as $field) {
         $partialData = ['title' => 'Updated Task'];
-        
+
         $validator = Validator::make($partialData, $request->rules());
         expect($validator->passes())->toBeTrue();
     }
 
     $invalidData = $validData;
     $invalidData['status'] = 'invalid_status';
-    
+
     $validator = Validator::make($invalidData, $request->rules());
     expect($validator->fails())->toBeTrue();
     expect($validator->errors()->toArray())->toHaveKey('status');
 
     $invalidData = $validData;
     $invalidData['priority'] = 'invalid_priority';
-    
+
     $validator = Validator::make($invalidData, $request->rules());
     expect($validator->fails())->toBeTrue();
     expect($validator->errors()->toArray())->toHaveKey('priority');
 
     $invalidData = $validData;
     $invalidData['due_date'] = 'not-a-date';
-    
+
     $validator = Validator::make($invalidData, $request->rules());
     expect($validator->fails())->toBeTrue();
     expect($validator->errors()->toArray())->toHaveKey('due_date');
-}); 
+});
