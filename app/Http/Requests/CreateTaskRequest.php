@@ -42,8 +42,8 @@ class CreateTaskRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'title' => trim($this->input('title')),
-            'description' => trim($this->input('description')),
+            'title' => $this->input('title') ? trim($this->input('title')): '',
+            'description' => $this->input('description') ? trim($this->input('description')): '',
             'user_id' => auth()->id(),
         ]);
     }
