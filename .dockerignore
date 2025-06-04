@@ -1,0 +1,28 @@
+# Laravel stuff
+vendor/
+node_modules/
+storage/app/public
+storage/framework
+# storage/logs
+.env
+.env.* # optionally ignore other environment files
+
+# Git
+.git
+.gitignore
+
+# Docker
+docker-compose.yml
+# docker/
+# Dockerfile
+.dockerignore
+
+# IDE / System
+*.log
+*.phpunit.result.cache
+*.idea
+*.vscode
+*.DS_Store
+
+node_modules
+npm-debug.log
