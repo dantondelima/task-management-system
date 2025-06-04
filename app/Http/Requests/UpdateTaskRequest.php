@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
-use App\Enums\TaskStatusEnum;
 use App\Enums\TaskPriorityEnum;
-use Illuminate\Validation\Rules\Enum;
+use App\Enums\TaskStatusEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class UpdateTaskRequest extends FormRequest
 {
@@ -15,18 +17,6 @@ class UpdateTaskRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
-    }
-
-    /**
-     * Prepare the data for validation.
-     */
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'title' => trim($this->input('title')),
-            'description' => trim($this->input('description')),
-            'user_id' => auth()->id(),
-        ]);
     }
 
     /**
@@ -46,4 +36,16 @@ class UpdateTaskRequest extends FormRequest
             'user_id' => 'sometimes|required|exists:users,id',
         ];
     }
-} 
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'title' => trim($this->input('title')),
+            'description' => trim($this->input('description')),
+            'user_id' => auth()->id(),
+        ]);
+    }
+}

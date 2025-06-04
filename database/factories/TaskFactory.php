@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
+use App\Enums\TaskPriorityEnum;
+use App\Enums\TaskStatusEnum;
 use App\Models\Task;
 use App\Models\User;
-use App\Enums\TaskStatusEnum;
-use App\Enums\TaskPriorityEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Task>
@@ -19,7 +20,6 @@ class TaskFactory extends Factory
      *
      * @return array<string, mixed>
      */
-
     protected $model = Task::class;
 
     public function definition(): array
