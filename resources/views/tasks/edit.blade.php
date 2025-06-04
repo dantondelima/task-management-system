@@ -94,15 +94,6 @@
                             @enderror
                         </div> --}}
 
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="completed" name="completed" {{ $task->completed_at ? 'checked' : '' }}>
-                                <label class="form-check-label" for="completed">
-                                    Mark as completed
-                                </label>
-                            </div>
-                        </div>
-
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">Update Task</button>
                         </div>

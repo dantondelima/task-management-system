@@ -89,25 +89,12 @@
                         <div class="col-md-6">
                             <div class="card mb-3">
                                 <div class="card-header">
-                                    Completion Status
+                                    Status
                                 </div>
                                 <div class="card-body">
-                                    <p><strong>Completed:</strong> 
-                                        @if($task->completed_at)
-                                            <span class="text-success">Yes ({{ $task->completed_at->format('Y-m-d H:i') }})</span>
-                                        @else
-                                            <span class="text-danger">No</span>
-                                        @endif
-                                    </p>
-                                    
-                                    @if(!$task->completed_at && $task->status->value != 'completed')
-                                        <form action="{{ route('tasks.update', $task->id) }}" method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="completed">
-                                            <input type="hidden" name="completed" value="1">
-                                            <button type="submit" class="btn btn-success btn-sm">Mark as Completed</button>
-                                        </form>
+                                    <p><strong>Status:</strong> {{ $task->status->label() }}</p>
+                                    @if($task->status->value === 'completed' && $task->completed_at)
+                                        <p><strong>Completed at:</strong> {{ $task->completed_at->format('Y-m-d H:i') }}</p>
                                     @endif
                                 </div>
                             </div>

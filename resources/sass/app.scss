@@ -6,3 +6,20 @@
 
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
+
+// Custom styles
+.pagination {
+    margin-bottom: 0;
+    
+    .page-item {
+        .page-link {
+            padding: 0.5rem 0.75rem;
+            margin-left: -1px;
+            line-height: 1.25;
+        }
+        
+        &.active .page-link {
+            z-index: 3;
+        }
+    }
+}

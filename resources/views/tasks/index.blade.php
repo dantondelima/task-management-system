@@ -39,9 +39,9 @@
                                                 <label for="status" class="form-label">Status</label>
                                                 <select name="status" id="status" class="form-select">
                                                     <option value="">All Statuses</option>
-                                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                                    <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                                                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                                                    @foreach(App\Enums\TaskStatusEnum::cases() as $status)
+                                                        <option value="{{ $status->value }}" {{ request('status') == $status->value ? 'selected' : '' }}>{{ $status->label() }}</option>
+                                                    @endforeach
                                                 </select>
                                             </div>
                                             
@@ -50,19 +50,9 @@
                                                 <label for="priority" class="form-label">Priority</label>
                                                 <select name="priority" id="priority" class="form-select">
                                                     <option value="">All Priorities</option>
-                                                    <option value="low" {{ request('priority') == 'low' ? 'selected' : '' }}>Low</option>
-                                                    <option value="medium" {{ request('priority') == 'medium' ? 'selected' : '' }}>Medium</option>
-                                                    <option value="high" {{ request('priority') == 'high' ? 'selected' : '' }}>High</option>
-                                                </select>
-                                            </div>
-                                            
-                                            <!-- Completed Filter -->
-                                            <div class="col-md-4">
-                                                <label for="completed" class="form-label">Completion</label>
-                                                <select name="completed" id="completed" class="form-select">
-                                                    <option value="">All Tasks</option>
-                                                    <option value="yes" {{ request('completed') == 'yes' ? 'selected' : '' }}>Completed</option>
-                                                    <option value="no" {{ request('completed') == 'no' ? 'selected' : '' }}>Not Completed</option>
+                                                    @foreach(App\Enums\TaskPriorityEnum::cases() as $priority)
+                                                        <option value="{{ $priority->value }}" {{ request('priority') == $priority->value ? 'selected' : '' }}>{{ $priority->label() }}</option>
+                                                    @endforeach
                                                 </select>
                                             </div>
                                         </div>
@@ -129,7 +119,6 @@
                                     <th>Status</th>
                                     <th>Priority</th>
                                     <th>Due Date</th>
-                                    <th>Completed</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -140,41 +129,34 @@
                                         <td>
                                             @switch($task->status->value)
                                                 @case('pending')
-                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                    <span class="badge bg-warning text-dark">{{ $task->status->label() }}</span>
                                                     @break
                                                 @case('in_progress')
-                                                    <span class="badge bg-info text-dark">In Progress</span>
+                                                    <span class="badge bg-info text-dark">{{ $task->status->label() }}</span>
                                                     @break
                                                 @case('completed')
-                                                    <span class="badge bg-success">Completed</span>
+                                                    <span class="badge bg-success">{{ $task->status->label() }}</span>
                                                     @break
                                                 @default
-                                                    <span class="badge bg-secondary">{{ $task->status->value }}</span>
+                                                    <span class="badge bg-secondary">{{ $task->status->label() }}</span>
                                             @endswitch
                                         </td>
                                         <td>
                                             @switch($task->priority->value)
                                                 @case('low')
-                                                    <span class="badge bg-success">Low</span>
+                                                    <span class="badge bg-success">{{ $task->priority->label() }}</span>
                                                     @break
                                                 @case('medium')
-                                                    <span class="badge bg-warning text-dark">Medium</span>
+                                                    <span class="badge bg-warning text-dark">{{ $task->priority->label() }}</span>
                                                     @break
                                                 @case('high')
-                                                    <span class="badge bg-danger">High</span>
+                                                    <span class="badge bg-danger">{{ $task->priority->label() }}</span>
                                                     @break
                                                 @default
-                                                    <span class="badge bg-secondary">{{ $task->priority->value }}</span>
+                                                    <span class="badge bg-secondary">{{ $task->priority->label() }}</span>
                                             @endswitch
                                         </td>
                                         <td>{{ $task->due_date ? $task->due_date->format('Y-m-d') : 'N/A' }}</td>
-                                        <td>
-                                            @if($task->completed_at)
-                                                <span class="text-success">Yes</span>
-                                            @else
-                                                <span class="text-danger">No</span>
-                                            @endif
-                                        </td>
                                         <td>
                                             <div class="btn-group" role="group">
                                                 <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-sm btn-info text-white">View</a>
@@ -197,13 +179,8 @@
                     </div>
 
                     <!-- Pagination -->
-                    <div class="d-flex justify-content-between align-items-center mt-4">
-                        <div>
-                            Showing {{ $tasks->firstItem() ?? 0 }} to {{ $tasks->lastItem() ?? 0 }} of {{ $tasks->total() }} tasks
-                        </div>
-                        <div>
-                            {{ $tasks->links() }}
-                        </div>
+                    <div class="mt-4">
+                        {{ $tasks->appends(request()->query())->links() }}
                     </div>
                 </div>
             </div>

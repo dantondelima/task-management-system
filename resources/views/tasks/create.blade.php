@@ -38,9 +38,11 @@
                             <label for="status" class="form-label">Status</label>
                             <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" required>
                                 <option value="">Select Status</option>
-                                <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="in_progress" {{ old('status') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                                <option value="completed" {{ old('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                                @foreach(App\Enums\TaskStatusEnum::cases() as $status)
+                                    @if($status->value !== 'completed')
+                                        <option value="{{ $status->value }}" {{ old('status') == $status->value ? 'selected' : '' }}>{{ $status->label() }}</option>
+                                    @endif
+                                @endforeach
                             </select>
                             @error('status')
                                 <div class="invalid-feedback">
@@ -53,9 +55,9 @@
                             <label for="priority" class="form-label">Priority</label>
                             <select class="form-select @error('priority') is-invalid @enderror" id="priority" name="priority" required>
                                 <option value="">Select Priority</option>
-                                <option value="low" {{ old('priority') == 'low' ? 'selected' : '' }}>Low</option>
-                                <option value="medium" {{ old('priority') == 'medium' ? 'selected' : '' }}>Medium</option>
-                                <option value="high" {{ old('priority') == 'high' ? 'selected' : '' }}>High</option>
+                                @foreach(App\Enums\TaskPriorityEnum::cases() as $priority)
+                                    <option value="{{ $priority->value }}" {{ old('priority') == $priority->value ? 'selected' : '' }}>{{ $priority->label() }}</option>
+                                @endforeach
                             </select>
                             @error('priority')
                                 <div class="invalid-feedback">
