@@ -31,7 +31,7 @@ class UpdateTaskRequest extends FormRequest
             'description' => 'sometimes|nullable|string',
             'status' => ['sometimes', 'required', new Enum(TaskStatusEnum::class)],
             'priority' => ['sometimes', 'required', new Enum(TaskPriorityEnum::class)],
-            'due_date' => 'sometimes|nullable|date',
+            'due_date' => 'sometimes|nullable|date|after_or_equal:today',
             'completed_at' => 'sometimes|nullable|date',
             'user_id' => 'sometimes|required|exists:users,id',
             'categories' => 'sometimes|array',

@@ -31,7 +31,7 @@ class CreateTaskRequest extends FormRequest
             'description' => 'required|string',
             'status' => ['required', new Enum(TaskStatusEnum::class)],
             'priority' => ['required', new Enum(TaskPriorityEnum::class)],
-            'due_date' => 'required|date',
+            'due_date' => 'required|date|after_or_equal:today',
             'user_id' => 'required|exists:users,id',
             'categories' => 'sometimes|array',
             'categories.*' => 'exists:categories,id',
