@@ -33,6 +33,8 @@ class CreateTaskRequest extends FormRequest
             'priority' => ['required', new Enum(TaskPriorityEnum::class)],
             'due_date' => 'required|date',
             'user_id' => 'required|exists:users,id',
+            'categories' => 'sometimes|array',
+            'categories.*' => 'exists:categories,id',
         ];
     }
 

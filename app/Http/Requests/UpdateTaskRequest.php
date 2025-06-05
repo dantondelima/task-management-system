@@ -34,6 +34,8 @@ class UpdateTaskRequest extends FormRequest
             'due_date' => 'sometimes|nullable|date',
             'completed_at' => 'sometimes|nullable|date',
             'user_id' => 'sometimes|required|exists:users,id',
+            'categories' => 'sometimes|array',
+            'categories.*' => 'exists:categories,id',
         ];
     }
 
