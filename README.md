@@ -54,7 +54,7 @@ The application will be available at: **http://localhost:9005**
 ```bash
 docker compose -f docker/mailpit/docker-compose.yml up -d
 ```
-
+The e-mail inbox will be available at: **http://localhost:8025**
 ### Queue Configuration (Optional)
 For notification processing:
 ```bash
