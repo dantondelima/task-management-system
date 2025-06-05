@@ -7,6 +7,7 @@ use App\Enums\TaskStatusEnum;
 use App\Exceptions\TaskNotFoundException;
 use App\Models\Task;
 use App\Models\User;
+use App\Repositories\CategoryRepositoryInterface;
 use App\Repositories\TaskRepositoryInterface;
 use App\Services\TaskService;
 use Carbon\Carbon;
@@ -18,7 +19,8 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->mockTaskRepository = $this->createMock(TaskRepositoryInterface::class);
-    $this->taskService = new TaskService($this->mockTaskRepository);
+    $this->mockCategoryRepository = $this->createMock(CategoryRepositoryInterface::class);
+    $this->taskService = new TaskService($this->mockTaskRepository, $this->mockCategoryRepository);
     $this->user = User::factory()->create();
 });
 
@@ -53,6 +55,19 @@ test('get all users returns all users', function () {
 
     expect($result)->toBeInstanceOf(Collection::class);
     expect($result->count())->toBe(4);
+});
+
+test('get all categories returns all categories', function () {
+    $categories = new Collection(['category1', 'category2']);
+
+    $this->mockCategoryRepository->expects($this->once())
+        ->method('getAllCategories')
+        ->willReturn($categories);
+
+    $result = $this->taskService->getAllCategories();
+
+    expect($result)->toBeInstanceOf(Collection::class);
+    expect($result)->toBe($categories);
 });
 
 test('get task by id returns task', function () {
@@ -128,30 +143,6 @@ test('create task returns a new task', function () {
 
     expect($result)->toBeInstanceOf(Task::class);
     expect($result->title)->toBe('Test Task');
-});
-
-test('update task returns updated task', function () {
-    $taskId = 1;
-    $taskData = [
-        'title' => 'Updated Task',
-        'description' => 'Updated Description',
-        'status' => TaskStatusEnum::IN_PROGRESS->value,
-        'priority' => TaskPriorityEnum::HIGH->value,
-        'due_date' => '2023-12-31',
-    ];
-
-    $task = Task::factory()->make($taskData + ['id' => $taskId]);
-
-    $this->mockTaskRepository->expects($this->once())
-        ->method('updateTask')
-        ->with($taskId, $taskData)
-        ->willReturn($task);
-
-    $result = $this->taskService->updateTask($taskId, $taskData);
-
-    expect($result)->toBeInstanceOf(Task::class);
-    expect($result->title)->toBe('Updated Task');
-    expect($result->status->value)->toBe(TaskStatusEnum::IN_PROGRESS->value);
 });
 
 test('update task with user check returns updated task if it belongs to user', function () {

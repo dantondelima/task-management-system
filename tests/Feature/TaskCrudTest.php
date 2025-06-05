@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Enums\TaskPriorityEnum;
 use App\Enums\TaskStatusEnum;
+use App\Models\Category;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,6 +16,7 @@ beforeEach(function () {
     $otherUser = User::factory()->create();
     $this->user = $user;
     $this->otherUser = $otherUser;
+    $this->categories = Category::factory()->count(3)->create();
 });
 
 test('user can view a paginated list of their tasks', function () {
@@ -54,6 +56,7 @@ test('user can filter tasks by status', function () {
 
 test('user can view a single task that belongs to them', function () {
     $task = Task::factory()->user($this->user)->create();
+    $task->categories()->attach($this->categories->first()->id);
 
     $response = $this->actingAs($this->user)->get(route('tasks.show', $task->id));
 
@@ -64,6 +67,7 @@ test('user can view a single task that belongs to them', function () {
     });
     $response->assertSee($task->title);
     $response->assertSee($task->description);
+    $response->assertSee($this->categories->first()->name);
 });
 
 test('user cannot view a task that belongs to another user', function () {
@@ -95,6 +99,39 @@ test('user can create a task with valid data', function () {
         'title' => 'New Test Task',
         'user_id' => $this->user->id,
     ]);
+});
+
+test('user can create a task with categories', function () {
+    $categoryIds = $this->categories->pluck('id')->toArray();
+
+    $taskData = [
+        'title' => 'New Test Task with Categories',
+        'description' => 'This is a test task description with categories',
+        'status' => TaskStatusEnum::PENDING->value,
+        'priority' => TaskPriorityEnum::MEDIUM->value,
+        'due_date' => now()->addWeek()->format('Y-m-d'),
+        'categories' => $categoryIds,
+    ];
+
+    $response = $this->actingAs($this->user)->post(route('tasks.store'), $taskData);
+
+    $response->assertStatus(302);
+    $response->assertRedirect(route('tasks.index'));
+    $response->assertSessionHas('success', 'Task created successfully.');
+
+    $task = Task::where('title', 'New Test Task with Categories')->first();
+
+    $this->assertDatabaseHas('tasks', [
+        'title' => 'New Test Task with Categories',
+        'user_id' => $this->user->id,
+    ]);
+
+    foreach ($categoryIds as $categoryId) {
+        $this->assertDatabaseHas('category_task', [
+            'task_id' => $task->id,
+            'category_id' => $categoryId,
+        ]);
+    }
 });
 
 test('user cannot create a task with invalid data', function () {
@@ -138,6 +175,42 @@ test('user can update their task with valid data', function () {
         'title' => 'Updated Task Title',
         'status' => TaskStatusEnum::IN_PROGRESS->value,
     ]);
+});
+
+test('user can update their task with categories', function () {
+    $task = Task::factory()->user($this->user)->create([
+        'status' => TaskStatusEnum::PENDING,
+    ]);
+
+    $categoryIds = $this->categories->pluck('id')->toArray();
+
+    $updateData = [
+        'title' => 'Updated Task with Categories',
+        'description' => 'Updated task description with categories',
+        'status' => TaskStatusEnum::IN_PROGRESS->value,
+        'priority' => TaskPriorityEnum::HIGH->value,
+        'due_date' => now()->addWeeks(2)->format('Y-m-d'),
+        'categories' => $categoryIds,
+    ];
+
+    $response = $this->actingAs($this->user)->put(route('tasks.update', $task->id), $updateData);
+
+    $response->assertStatus(302);
+    $response->assertRedirect(route('tasks.show', $task->id));
+    $response->assertSessionHas('success', 'Task updated successfully.');
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'title' => 'Updated Task with Categories',
+        'status' => TaskStatusEnum::IN_PROGRESS->value,
+    ]);
+
+    foreach ($categoryIds as $categoryId) {
+        $this->assertDatabaseHas('category_task', [
+            'task_id' => $task->id,
+            'category_id' => $categoryId,
+        ]);
+    }
 });
 
 test('user cannot update a task with invalid data', function () {
@@ -214,6 +287,7 @@ test('user can mark their task as completed', function () {
 
 test('user can delete their task', function () {
     $task = Task::factory()->user($this->user)->create();
+    $task->categories()->attach($this->categories->first()->id);
 
     $response = $this->actingAs($this->user)->delete(route('tasks.destroy', $task->id));
 
@@ -222,6 +296,7 @@ test('user can delete their task', function () {
     $response->assertSessionHas('success', 'Task deleted successfully.');
 
     $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
+    $this->assertDatabaseMissing('category_task', ['task_id' => $task->id]);
 });
 
 test('user cannot delete a task that belongs to another user', function () {

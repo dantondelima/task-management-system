@@ -12,10 +12,13 @@ class SendTaskCreatedNotification implements ShouldQueue
 {
     public function handle(TaskCreated $event): void
     {
-        $user = $event->task->user;
+        $task = $event->task;
+        $user = $task->user;
+
+        $task->load('categories');
 
         if ($user) {
-            $user->notify(new TaskCreatedNotification($event->task));
+            $user->notify(new TaskCreatedNotification($task));
         }
     }
 }
