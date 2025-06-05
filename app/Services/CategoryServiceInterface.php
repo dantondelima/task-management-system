@@ -12,29 +12,29 @@ use Illuminate\Pagination\LengthAwarePaginator;
 interface CategoryServiceInterface
 {
     /**
-     * Get all categories
+     * Get all categories for a user
      */
-    public function getAllCategories(): Collection;
+    public function getAllCategories(int $userId): Collection;
 
     /**
-     * Get all categories with task counts
+     * Get all categories with task counts for a user
      */
-    public function getAllCategoriesWithTaskCount(): Collection;
+    public function getAllCategoriesWithTaskCount(int $userId): Collection;
 
     /**
-     * Get paginated categories with task counts
+     * Get paginated categories with task counts for a user
      */
-    public function getPaginatedCategories(int $perPage = 10): LengthAwarePaginator;
+    public function getPaginatedCategories(int $userId, int $perPage = 10): LengthAwarePaginator;
 
     /**
      * Get category by id
      *
      * @throws ModelNotFoundException
      */
-    public function getCategoryById(int $id): Category;
+    public function getCategoryById(int $id, int $userId): Category;
 
     /**
-     * Create new category
+     * Create new category for a user
      */
     public function createCategory(array $categoryData): Category;
 
@@ -43,12 +43,12 @@ interface CategoryServiceInterface
      *
      * @throws ModelNotFoundException
      */
-    public function updateCategory(int $id, array $categoryData): Category;
+    public function updateCategory(int $id, array $categoryData, int $userId): Category;
 
     /**
      * Delete category
      *
      * @throws ModelNotFoundException
      */
-    public function deleteCategory(int $id): bool;
+    public function deleteCategory(int $id, int $userId): bool;
 }

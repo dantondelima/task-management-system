@@ -14,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use InvalidArgumentException;
 
 class TaskController extends Controller
 {
@@ -25,6 +26,7 @@ class TaskController extends Controller
     public function __construct(TaskServiceInterface $taskService)
     {
         $this->taskService = $taskService;
+        $this->middleware('auth');
     }
 
     /**
@@ -41,7 +43,7 @@ class TaskController extends Controller
             $userId = auth()->id();
 
             $tasks = $this->taskService->getAllTasks($filters, $sortBy, $sortDirection, $userId);
-            $categories = $this->taskService->getAllCategories();
+            $categories = $this->taskService->getAllCategories($userId);
 
             $sortOptions = [
                 'created_at' => 'Created Date',
@@ -69,8 +71,9 @@ class TaskController extends Controller
     public function create(): View|RedirectResponse
     {
         try {
+            $userId = auth()->id();
             $users = $this->taskService->getAllUsers();
-            $categories = $this->taskService->getAllCategories();
+            $categories = $this->taskService->getAllCategories($userId);
 
             return view('tasks.create', compact('users', 'categories'));
         } catch (Exception $e) {
@@ -105,6 +108,14 @@ class TaskController extends Controller
 
             return redirect()->route('tasks.index')
                 ->with('success', 'Task created successfully.');
+        } catch (InvalidArgumentException $e) {
+            Log::warning('Invalid category assignment: '.$e->getMessage(), [
+                'data' => $request->validated(),
+            ]);
+
+            return redirect()->route('tasks.create')
+                ->with('error', 'Cannot assign categories that do not belong to you.')
+                ->withInput();
         } catch (Exception $e) {
             Log::error('Error creating task: '.$e->getMessage(), [
                 'exception' => $e,
@@ -123,7 +134,8 @@ class TaskController extends Controller
     public function show(int $id): View|RedirectResponse
     {
         try {
-            $task = $this->taskService->getTaskById($id, auth()->id());
+            $userId = auth()->id();
+            $task = $this->taskService->getTaskById($id, $userId);
 
             return view('tasks.show', compact('task'));
         } catch (TaskNotFoundException $e) {
@@ -148,9 +160,10 @@ class TaskController extends Controller
     public function edit(int $id): View|RedirectResponse
     {
         try {
-            $task = $this->taskService->getTaskById($id, auth()->id());
+            $userId = auth()->id();
+            $task = $this->taskService->getTaskById($id, $userId);
             $users = $this->taskService->getAllUsers();
-            $categories = $this->taskService->getAllCategories();
+            $categories = $this->taskService->getAllCategories($userId);
 
             return view('tasks.edit', compact('task', 'users', 'categories'));
         } catch (TaskNotFoundException $e) {
@@ -195,6 +208,15 @@ class TaskController extends Controller
 
             return redirect()->route('tasks.index')
                 ->with('error', 'Task not found.');
+        } catch (InvalidArgumentException $e) {
+            Log::warning('Invalid category assignment: '.$e->getMessage(), [
+                'task_id' => $id,
+                'data' => $request->validated(),
+            ]);
+
+            return redirect()->route('tasks.edit', $id)
+                ->with('error', 'Cannot assign categories that do not belong to you.')
+                ->withInput();
         } catch (Exception $e) {
             Log::error('Error updating task: '.$e->getMessage(), [
                 'exception' => $e,

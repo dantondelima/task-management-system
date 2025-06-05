@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Exceptions\TaskNotFoundException;
+use App\Models\Category;
 use App\Models\Task;
 use App\Models\User;
 use App\Repositories\CategoryRepositoryInterface;
@@ -12,6 +13,7 @@ use App\Repositories\TaskRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use InvalidArgumentException;
 
 class TaskService implements TaskServiceInterface
 {
@@ -58,9 +60,9 @@ class TaskService implements TaskServiceInterface
     /**
      * Get all categories for task categorization
      */
-    public function getAllCategories(): Collection
+    public function getAllCategories(int $userId): Collection
     {
-        return $this->categoryRepository->getAllCategories();
+        return $this->categoryRepository->getAllCategories($userId);
     }
 
     /**
@@ -83,6 +85,8 @@ class TaskService implements TaskServiceInterface
 
     /**
      * Create new task
+     *
+     * @throws InvalidArgumentException If categories don't belong to the task owner
      */
     public function createTask(array $taskData): Task
     {
@@ -95,6 +99,9 @@ class TaskService implements TaskServiceInterface
         $task = $this->taskRepository->createTask($taskData);
 
         if ($categories) {
+            // Validate that all categories belong to the task owner
+            $this->validateCategoriesOwnership($categories, $task->user_id);
+
             $task->categories()->sync($categories);
         }
 
@@ -107,6 +114,7 @@ class TaskService implements TaskServiceInterface
      * @param  int|null  $userId  Only update if task belongs to this user (or null for any)
      *
      * @throws TaskNotFoundException
+     * @throws InvalidArgumentException If categories don't belong to the task owner
      */
     public function updateTask(int $id, array $taskData, ?int $userId = null): Task
     {
@@ -135,6 +143,9 @@ class TaskService implements TaskServiceInterface
         $task = $this->taskRepository->updateTask($id, $taskData);
 
         if ($categories !== null) {
+            // Validate that all categories belong to the task owner
+            $this->validateCategoriesOwnership($categories, $task->user_id);
+
             $task->categories()->sync($categories);
         }
 
@@ -169,6 +180,28 @@ class TaskService implements TaskServiceInterface
         }
 
         return $this->taskRepository->deleteTask($id);
+    }
+
+    /**
+     * Validate that all categories belong to the specified user
+     *
+     * @throws InvalidArgumentException If any category doesn't belong to the user
+     */
+    private function validateCategoriesOwnership(array $categoryIds, int $userId): void
+    {
+        if (empty($categoryIds)) {
+            return;
+        }
+
+        // Count how many of the provided categories actually belong to this user
+        $validCategoriesCount = Category::whereIn('id', $categoryIds)
+            ->where('user_id', $userId)
+            ->count();
+
+        // If counts don't match, at least one category doesn't belong to this user
+        if ($validCategoriesCount !== count($categoryIds)) {
+            throw new InvalidArgumentException('One or more categories do not belong to the task owner');
+        }
     }
 
     /**

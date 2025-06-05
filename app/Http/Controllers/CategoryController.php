@@ -31,7 +31,8 @@ class CategoryController extends Controller
     public function index(): View|RedirectResponse
     {
         try {
-            $categories = $this->categoryService->getAllCategoriesWithTaskCount();
+            $userId = auth()->id();
+            $categories = $this->categoryService->getAllCategoriesWithTaskCount($userId);
 
             return view('categories.index', compact('categories'));
         } catch (Exception $e) {
@@ -59,6 +60,8 @@ class CategoryController extends Controller
     {
         try {
             $validatedData = $request->validated();
+            $validatedData['user_id'] = auth()->id();
+
             $this->categoryService->createCategory($validatedData);
 
             return redirect()->route('categories.index')
@@ -81,7 +84,8 @@ class CategoryController extends Controller
     public function edit(int $id): View|RedirectResponse
     {
         try {
-            $category = $this->categoryService->getCategoryById($id);
+            $userId = auth()->id();
+            $category = $this->categoryService->getCategoryById($id, $userId);
 
             return view('categories.edit', compact('category'));
         } catch (ModelNotFoundException $e) {
@@ -104,8 +108,9 @@ class CategoryController extends Controller
     public function update(UpdateCategoryRequest $request, int $id): RedirectResponse
     {
         try {
+            $userId = auth()->id();
             $validatedData = $request->validated();
-            $this->categoryService->updateCategory($id, $validatedData);
+            $this->categoryService->updateCategory($id, $validatedData, $userId);
 
             return redirect()->route('categories.index')
                 ->with('success', 'Category updated successfully.');
@@ -131,7 +136,8 @@ class CategoryController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         try {
-            $this->categoryService->deleteCategory($id);
+            $userId = auth()->id();
+            $this->categoryService->deleteCategory($id, $userId);
 
             return redirect()->route('categories.index')
                 ->with('success', 'Category deleted successfully.');

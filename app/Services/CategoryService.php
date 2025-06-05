@@ -24,27 +24,27 @@ class CategoryService implements CategoryServiceInterface
     }
 
     /**
-     * Get all categories
+     * Get all categories for a user
      */
-    public function getAllCategories(): Collection
+    public function getAllCategories(int $userId): Collection
     {
-        return $this->categoryRepository->getAllCategories();
+        return $this->categoryRepository->getAllCategories($userId);
     }
 
     /**
-     * Get all categories with task counts
+     * Get all categories with task counts for a user
      */
-    public function getAllCategoriesWithTaskCount(): Collection
+    public function getAllCategoriesWithTaskCount(int $userId): Collection
     {
-        return $this->categoryRepository->getAllCategoriesWithTaskCount();
+        return $this->categoryRepository->getAllCategoriesWithTaskCount($userId);
     }
 
     /**
-     * Get paginated categories with task counts
+     * Get paginated categories with task counts for a user
      */
-    public function getPaginatedCategories(int $perPage = 10): LengthAwarePaginator
+    public function getPaginatedCategories(int $userId, int $perPage = 10): LengthAwarePaginator
     {
-        return $this->categoryRepository->getPaginatedCategories($perPage);
+        return $this->categoryRepository->getPaginatedCategories($userId, $perPage);
     }
 
     /**
@@ -52,10 +52,10 @@ class CategoryService implements CategoryServiceInterface
      *
      * @throws ModelNotFoundException
      */
-    public function getCategoryById(int $id): Category
+    public function getCategoryById(int $id, int $userId): Category
     {
         try {
-            return $this->categoryRepository->getCategoryById($id);
+            return $this->categoryRepository->getCategoryById($id, $userId);
         } catch (ModelNotFoundException $e) {
             Log::warning("Category not found: {$e->getMessage()}");
             throw $e;
@@ -63,7 +63,7 @@ class CategoryService implements CategoryServiceInterface
     }
 
     /**
-     * Create new category
+     * Create new category for a user
      */
     public function createCategory(array $categoryData): Category
     {
@@ -75,10 +75,10 @@ class CategoryService implements CategoryServiceInterface
      *
      * @throws ModelNotFoundException
      */
-    public function updateCategory(int $id, array $categoryData): Category
+    public function updateCategory(int $id, array $categoryData, int $userId): Category
     {
         try {
-            return $this->categoryRepository->updateCategory($id, $categoryData);
+            return $this->categoryRepository->updateCategory($id, $categoryData, $userId);
         } catch (ModelNotFoundException $e) {
             Log::warning("Category not found for update: {$e->getMessage()}");
             throw $e;
@@ -90,10 +90,10 @@ class CategoryService implements CategoryServiceInterface
      *
      * @throws ModelNotFoundException
      */
-    public function deleteCategory(int $id): bool
+    public function deleteCategory(int $id, int $userId): bool
     {
         try {
-            return $this->categoryRepository->deleteCategory($id);
+            return $this->categoryRepository->deleteCategory($id, $userId);
         } catch (ModelNotFoundException $e) {
             Log::warning("Category not found for deletion: {$e->getMessage()}");
             throw $e;

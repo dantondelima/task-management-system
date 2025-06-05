@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\Category;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -28,6 +29,17 @@ class CategoryFactory extends Factory
     {
         return [
             'name' => $this->faker->unique()->word(),
+            'user_id' => User::factory(),
         ];
+    }
+
+    /**
+     * Configure the factory to assign the category to a specific user.
+     */
+    public function user(User $user): Factory
+    {
+        return $this->state(fn () => [
+            'user_id' => $user->id,
+        ]);
     }
 }

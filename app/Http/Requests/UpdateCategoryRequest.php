@@ -29,7 +29,9 @@ class UpdateCategoryRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
-                Rule::unique('categories', 'name')->ignore($this->route('id')),
+                Rule::unique('categories', 'name')
+                    ->where('user_id', auth()->id())
+                    ->ignore($this->route('id')),
             ],
         ];
     }
@@ -44,7 +46,7 @@ class UpdateCategoryRequest extends FormRequest
         return [
             'name.required' => 'The category name is required.',
             'name.max' => 'The category name cannot exceed 100 characters.',
-            'name.unique' => 'This category name already exists.',
+            'name.unique' => 'This category name already exists for your account.',
         ];
     }
 }

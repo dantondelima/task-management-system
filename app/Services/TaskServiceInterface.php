@@ -29,7 +29,7 @@ interface TaskServiceInterface
     /**
      * Get all categories for task categorization
      */
-    public function getAllCategories(): Collection;
+    public function getAllCategories(int $userId): Collection;
 
     /**
      * Get task by id
