@@ -5,7 +5,7 @@
 This project is a Task Management System built with: 
  - **Laravel 10**
  - **PostgreSQL**
- - **Docker**
+ - **Docker** (images: php, nginx, node, postgresql and mailpit)
  - **PEST**
  - **Laravel Pint**
  - **Laravel UI**
@@ -44,7 +44,7 @@ chmod +x docker/app/docker-entrypoint.sh
 ```bash
 ./setup.sh
 ```
-
+This will build everything the application needs, as well as migrate and seed the database.
 The application will be available at: **http://localhost:9005**
 
 ## Additional Configuration
