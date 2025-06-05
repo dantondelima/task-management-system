@@ -6,8 +6,24 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>{{ __('My Tasks') }}</span>
-                    <a href="{{ route('tasks.create') }}" class="btn btn-primary btn-sm">Create New Task</a>
+                    <div>
+                        <span>{{ __('My Tasks') }}</span>
+                        @if(request('category_id'))
+                            @php
+                                $selectedCategory = $categories->firstWhere('id', request('category_id'));
+                            @endphp
+                            @if($selectedCategory)
+                                <span class="ms-2 badge bg-secondary">{{ $selectedCategory->name }}</span>
+                                <a href="{{ route('tasks.index') }}" class="ms-1 text-decoration-none small">
+                                    <i class="fas fa-times"></i> Clear
+                                </a>
+                            @endif
+                        @endif
+                    </div>
+                    <div>
+                        <a href="{{ route('categories.index') }}" class="btn btn-outline-secondary btn-sm me-2">Manage Categories</a>
+                        <a href="{{ route('tasks.create') }}" class="btn btn-primary btn-sm">Create New Task</a>
+                    </div>
                 </div>
 
                 <div class="card-body">
@@ -52,6 +68,19 @@
                                                     <option value="">All Priorities</option>
                                                     @foreach(App\Enums\TaskPriorityEnum::cases() as $priority)
                                                         <option value="{{ $priority->value }}" {{ request('priority') == $priority->value ? 'selected' : '' }}>{{ $priority->label() }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <!-- Category Filter -->
+                                            <div class="col-md-4">
+                                                <label for="category_id" class="form-label">Category</label>
+                                                <select name="category_id" id="category_id" class="form-select">
+                                                    <option value="">All Categories</option>
+                                                    @foreach($categories as $category)
+                                                        <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                                            {{ $category->name }}
+                                                        </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -118,6 +147,7 @@
                                     <th>Title</th>
                                     <th>Status</th>
                                     <th>Priority</th>
+                                    <th>Categories</th>
                                     <th>Due Date</th>
                                     <th>Actions</th>
                                 </tr>
@@ -155,6 +185,15 @@
                                                 @default
                                                     <span class="badge bg-secondary">{{ $task->priority->label() }}</span>
                                             @endswitch
+                                        </td>
+                                        <td>
+                                            @forelse($task->categories as $category)
+                                                <a href="{{ route('tasks.index', ['category_id' => $category->id]) }}" class="badge bg-secondary text-white text-decoration-none me-1">
+                                                    {{ $category->name }}
+                                                </a>
+                                            @empty
+                                                <span class="text-muted">No categories</span>
+                                            @endforelse
                                         </td>
                                         <td>{{ $task->due_date ? $task->due_date->format('Y-m-d') : 'N/A' }}</td>
                                         <td>

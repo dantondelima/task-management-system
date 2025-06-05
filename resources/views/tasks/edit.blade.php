@@ -69,6 +69,25 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="categories" class="form-label">Categories</label>
+                            <select multiple class="form-select @error('categories') is-invalid @enderror" id="categories" name="categories[]">
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" 
+                                        {{ (old('categories') && in_array($category->id, old('categories'))) 
+                                            || (old('categories') === null && $task->categories->contains($category->id)) ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">Hold Ctrl (or Cmd on Mac) to select multiple categories</div>
+                            @error('categories')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
                             <label for="due_date" class="form-label">Due Date</label>
                             <input type="date" class="form-control @error('due_date') is-invalid @enderror" id="due_date" name="due_date" value="{{ old('due_date', $task->due_date ? $task->due_date->format('Y-m-d') : '') }}">
                             @error('due_date')

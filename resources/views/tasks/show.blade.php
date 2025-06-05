@@ -63,6 +63,19 @@
                                 <span>{{ $task->due_date ? $task->due_date->format('Y-m-d') : 'N/A' }}</span>
                             </div>
                         </div>
+
+                        @if($task->categories->count() > 0)
+                        <div class="mb-3">
+                            <span class="fw-bold">Categories:</span>
+                            <div class="mt-2">
+                                @foreach($task->categories as $category)
+                                    <a href="{{ route('tasks.index', ['category_id' => $category->id]) }}" class="badge bg-secondary text-white text-decoration-none me-1">
+                                        {{ $category->name }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
                     </div>
                     
                     <div class="card mb-4">
