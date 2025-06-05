@@ -16,7 +16,7 @@ beforeEach(function () {
     $otherUser = User::factory()->create();
     $this->user = $user;
     $this->otherUser = $otherUser;
-    $this->categories = Category::factory()->count(3)->create();
+    $this->categories = Category::factory()->user($this->user)->count(3)->create();
 });
 
 test('user can view a paginated list of their tasks', function () {

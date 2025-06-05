@@ -57,14 +57,16 @@ test('get all users returns all users', function () {
     expect($result->count())->toBe(4);
 });
 
-test('get all categories returns all categories', function () {
+test('get all categories returns all categories for a user', function () {
     $categories = new Collection(['category1', 'category2']);
+    $userId = $this->user->id;
 
     $this->mockCategoryRepository->expects($this->once())
         ->method('getAllCategories')
+        ->with($userId)
         ->willReturn($categories);
 
-    $result = $this->taskService->getAllCategories();
+    $result = $this->taskService->getAllCategories($userId);
 
     expect($result)->toBeInstanceOf(Collection::class);
     expect($result)->toBe($categories);
