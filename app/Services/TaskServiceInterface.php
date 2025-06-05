@@ -27,6 +27,11 @@ interface TaskServiceInterface
     public function getAllUsers(): Collection;
 
     /**
+     * Get all categories for task categorization
+     */
+    public function getAllCategories(): Collection;
+
+    /**
      * Get task by id
      *
      * @param  int|null  $userId  Only return task if it belongs to this user (or null for any)

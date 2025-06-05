@@ -33,7 +33,7 @@ class TaskController extends Controller
     public function index(Request $request): View|RedirectResponse
     {
         try {
-            $filters = $request->only(['status', 'priority', 'completed', 'per_page']);
+            $filters = $request->only(['status', 'priority', 'completed', 'per_page', 'category_id']);
 
             $sortBy = $request->input('sort_by');
             $sortDirection = $request->input('sort_direction', 'desc');
@@ -41,6 +41,7 @@ class TaskController extends Controller
             $userId = auth()->id();
 
             $tasks = $this->taskService->getAllTasks($filters, $sortBy, $sortDirection, $userId);
+            $categories = $this->taskService->getAllCategories();
 
             $sortOptions = [
                 'created_at' => 'Created Date',
@@ -50,11 +51,11 @@ class TaskController extends Controller
                 'title' => 'Title',
             ];
 
-            return view('tasks.index', compact('tasks', 'sortOptions'));
+            return view('tasks.index', compact('tasks', 'sortOptions', 'categories'));
         } catch (Exception $e) {
             Log::error('Error fetching tasks: '.$e->getMessage(), [
                 'exception' => $e,
-                'filters' => $request->only(['status', 'priority', 'completed']),
+                'filters' => $request->only(['status', 'priority', 'completed', 'category_id']),
             ]);
 
             return redirect()->route('home')
@@ -69,8 +70,9 @@ class TaskController extends Controller
     {
         try {
             $users = $this->taskService->getAllUsers();
+            $categories = $this->taskService->getAllCategories();
 
-            return view('tasks.create', compact('users'));
+            return view('tasks.create', compact('users', 'categories'));
         } catch (Exception $e) {
             Log::error('Error loading task creation form: '.$e->getMessage(), [
                 'exception' => $e,
@@ -148,8 +150,9 @@ class TaskController extends Controller
         try {
             $task = $this->taskService->getTaskById($id, auth()->id());
             $users = $this->taskService->getAllUsers();
+            $categories = $this->taskService->getAllCategories();
 
-            return view('tasks.edit', compact('task', 'users'));
+            return view('tasks.edit', compact('task', 'users', 'categories'));
         } catch (TaskNotFoundException $e) {
             Log::warning($e->getMessage(), ['task_id' => $id]);
 
@@ -232,7 +235,7 @@ class TaskController extends Controller
             ]);
 
             return redirect()->route('tasks.index')
-                ->with('error', 'An error occurred while deleting the task. Please try again later.');
+                ->with('error', 'An error occurred while deleting the task. Please try again.');
         }
     }
 }

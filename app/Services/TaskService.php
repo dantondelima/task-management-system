@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Exceptions\TaskNotFoundException;
 use App\Models\Task;
 use App\Models\User;
+use App\Repositories\CategoryRepositoryInterface;
 use App\Repositories\TaskRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -16,12 +17,17 @@ class TaskService implements TaskServiceInterface
 {
     protected TaskRepositoryInterface $taskRepository;
 
+    protected CategoryRepositoryInterface $categoryRepository;
+
     /**
      * TaskService constructor
      */
-    public function __construct(TaskRepositoryInterface $taskRepository)
-    {
+    public function __construct(
+        TaskRepositoryInterface $taskRepository,
+        CategoryRepositoryInterface $categoryRepository
+    ) {
         $this->taskRepository = $taskRepository;
+        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -50,6 +56,14 @@ class TaskService implements TaskServiceInterface
     }
 
     /**
+     * Get all categories for task categorization
+     */
+    public function getAllCategories(): Collection
+    {
+        return $this->categoryRepository->getAllCategories();
+    }
+
+    /**
      * Get task by id
      *
      * @param  int|null  $userId  Only return task if it belongs to this user (or null for any)
@@ -72,7 +86,19 @@ class TaskService implements TaskServiceInterface
      */
     public function createTask(array $taskData): Task
     {
-        return $this->taskRepository->createTask($taskData);
+        $categories = null;
+        if (isset($taskData['categories'])) {
+            $categories = $taskData['categories'];
+            unset($taskData['categories']);
+        }
+
+        $task = $this->taskRepository->createTask($taskData);
+
+        if ($categories) {
+            $task->categories()->sync($categories);
+        }
+
+        return $task;
     }
 
     /**
@@ -90,17 +116,29 @@ class TaskService implements TaskServiceInterface
 
         if (isset($taskData['status'])) {
             $task = $this->taskRepository->getTaskById($id);
-            
+
             if ($taskData['status'] === 'completed' && $task->status->value !== 'completed') {
                 $taskData['completed_at'] = Carbon::now();
             }
-            
+
             if ($taskData['status'] !== 'completed' && $task->status->value === 'completed') {
                 $taskData['completed_at'] = null;
             }
         }
 
-        return $this->taskRepository->updateTask($id, $taskData);
+        $categories = null;
+        if (isset($taskData['categories'])) {
+            $categories = $taskData['categories'];
+            unset($taskData['categories']);
+        }
+
+        $task = $this->taskRepository->updateTask($id, $taskData);
+
+        if ($categories !== null) {
+            $task->categories()->sync($categories);
+        }
+
+        return $task;
     }
 
     /**

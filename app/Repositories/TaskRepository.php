@@ -33,7 +33,7 @@ class TaskRepository implements TaskRepositoryInterface
     ): LengthAwarePaginator {
         $query = $this->task->newQuery();
 
-        $query->with('user');
+        $query->with(['user', 'categories']);
 
         // Filter by user
         if ($userId !== null) {
@@ -49,13 +49,9 @@ class TaskRepository implements TaskRepositoryInterface
             $query->where('priority', $filters['priority']);
         }
 
-        // Completed filter
-        if (isset($filters['completed'])) {
-            if ($filters['completed'] === 'yes') {
-                $query->whereNotNull('completed_at');
-            } elseif ($filters['completed'] === 'no') {
-                $query->whereNull('completed_at');
-            }
+        // Filter by category if specified
+        if (isset($filters['category_id']) && ! empty($filters['category_id'])) {
+            $query->inCategory($filters['category_id']);
         }
 
         // Apply sorting
@@ -77,7 +73,7 @@ class TaskRepository implements TaskRepositoryInterface
      */
     public function getAllTasks(): Collection
     {
-        return $this->task->all();
+        return $this->task->with(['user', 'categories'])->get();
     }
 
     /**
@@ -87,7 +83,7 @@ class TaskRepository implements TaskRepositoryInterface
      */
     public function getTaskById(int $id): Task
     {
-        $task = $this->task->with('user')->find($id);
+        $task = $this->task->with(['user', 'categories'])->find($id);
 
         if (! $task) {
             throw new TaskNotFoundException($id);
